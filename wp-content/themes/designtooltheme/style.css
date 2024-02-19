@@ -20,47 +20,6 @@ Underscores is distributed under the terms of the GNU GPL v2 or later.
 
 Normalizing styles have been helped along thanks to the fine work of
 Nicolas Gallagher and Jonathan Neal https://necolas.github.io/normalize.css/
-*/
-
-/*--------------------------------------------------------------
->>> TABLE OF CONTENTS:
-----------------------------------------------------------------
-# Generic
-	- Normalize
-	- Box sizing
-# Base
-	- Typography
-	- Elements
-	- Links
-	- Forms
-## Layouts
-# Components
-	- Navigation
-	- Posts and pages
-	- Comments
-	- Widgets
-	- Media
-	- Captions
-	- Galleries
-# plugins
-	- Jetpack infinite scroll
-# Utilities
-	- Accessibility
-	- Alignments
-
---------------------------------------------------------------*/
-
-/*--------------------------------------------------------------
-# Generic
---------------------------------------------------------------*/
-
-/* Normalize
---------------------------------------------- */
-
-/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
-
-/* Document
-	 ========================================================================== */
 
 /**
  * 1. Correct the line height in all browsers.
@@ -92,10 +51,6 @@ main {
  * Correct the font size and margin on `h1` elements within `section` and
  * `article` contexts in Chrome, Firefox, and Safari.
  */
-h1 {
-	font-size: 2em;
-	margin: 0.67em 0;
-}
 
 /* Grouping content
 	 ========================================================================== */
@@ -158,17 +113,7 @@ samp {
 	font-size: 1em;
 }
 
-/**
- * Add the correct font size in all browsers.
- */
-small {
-	font-size: 80%;
-}
 
-/**
- * Prevent `sub` and `sup` elements from affecting the line height in
- * all browsers.
- */
 sub,
 sup {
 	font-size: 75%;
@@ -195,45 +140,6 @@ img {
 	border-style: none;
 }
 
-/* Forms
-	 ========================================================================== */
-
-/**
- * 1. Change the font styles in all browsers.
- * 2. Remove the margin in Firefox and Safari.
- */
-button,
-input,
-optgroup,
-select,
-textarea {
-	font-family: inherit;
-	font-size: 100%;
-	line-height: 1.15;
-	margin: 0;
-}
-
-/**
- * Show the overflow in IE.
- * 1. Show the overflow in Edge.
- */
-button,
-input {
-	overflow: visible;
-}
-
-/**
- * Remove the inheritance of text transform in Edge, Firefox, and IE.
- * 1. Remove the inheritance of text transform in Firefox.
- */
-button,
-select {
-	text-transform: none;
-}
-
-/**
- * Correct the inability to style clickable types in iOS and Safari.
- */
 button,
 [type="button"],
 [type="reset"],
@@ -396,17 +302,7 @@ html {
 
 /* Typography
 --------------------------------------------- */
-body,
-button,
-input,
-select,
-optgroup,
-textarea {
-	color: #404040;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	font-size: 1rem;
-	line-height: 1.5;
-}
+
 
 h1,
 h2,
@@ -469,62 +365,8 @@ big {
 	font-size: 125%;
 }
 
-/* Elements
---------------------------------------------- */
-body {
-	background: #fff;
-}
-
-hr {
-	background-color: #ccc;
-	border: 0;
-	height: 1px;
-	margin-bottom: 1.5em;
-}
-
-ul,
-ol {
-	margin: 0 0 1.5em 3em;
-}
-
-ul {
-	list-style: disc;
-}
-
-ol {
-	list-style: decimal;
-}
-
-li > ul,
-li > ol {
-	margin-bottom: 0;
-	margin-left: 1.5em;
-}
-
-dt {
-	font-weight: 700;
-}
-
-dd {
-	margin: 0 1.5em 1.5em;
-}
-
-/* Make sure embeds and iframes fit their containers. */
-embed,
-iframe,
-object {
-	max-width: 100%;
-}
-
-/* Links
---------------------------------------------- */
 a {
 	color: #4169e1;
-}
-
-.post,
-.page {
-	margin: 0 0 1.5em;
 }
 
 .icon-box a{
@@ -548,3 +390,100 @@ a {
 	grid-template-columns: repeat(6,1fr);
 	grid-gap: 30px;
 }
+body .site-header{
+	position: fixed;
+	left: 0;
+	width: 100%;
+	z-index: 9;
+}
+body .site-header.active > div{
+	padding: 30px 0;
+	transition: 0.5s;
+}
+body .site-header.active{
+	background-color: rgb(255 255 255 / 45%);
+    backdrop-filter: blur(4px);
+}
+.site-header.sc_down{
+	transform: translateY(-100px);
+}
+nav.navbar-custom.sc_down:hover{
+	opacity: 1;
+}
+body .site-header.active img{
+	filter: brightness(0);
+}
+footer .site-menu ul li a{
+	display: inline-flex;
+	transition: 0.4s;
+}
+.site-menu ul li a img{
+	margin-right: 16px;
+}
+.site-menu ul li a:hover img{
+	filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(2%) hue-rotate(162deg) brightness(110%) contrast(100%);
+}
+footer .site-menu ul{
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-gap: 0 20px;
+}
+.floating-icon.bottom {
+    animation: floatbottom-icons 8s ease-in-out infinite !important;
+}	
+@keyframes floatbottom-icons {
+	0% {
+		transform: translate(0,0);
+	}
+	50% {
+		transform: translate(0, -80px);
+	}
+	100% {
+		transform: translate(0,0);
+	}
+}
+.floating-icon.right {
+    animation: floatright-icons 8s ease-in-out infinite !important;
+}	
+@keyframes floatright-icons {
+	0% {
+		transform: translate(0,0);
+	}
+	50% {
+		transform: translate(-50px, 0);
+	}
+	100% {
+		transform: translate(0,0);
+	}
+}
+
+.floating-icon.left {
+    animation: floatleft-icons 8s ease-in-out infinite !important;
+}	
+@keyframes floatleft-icons {
+	0% {
+		transform: translate(0,0);
+	}
+	50% {
+		transform: translate(-50px, 0);
+	}
+	100% {
+		transform: translate(0,0);
+	}
+}
+
+.floating-icon.top {
+    animation: floattop-icons 8s ease-in-out infinite !important;
+}	
+@keyframes floattop-icons {
+	0% {
+		transform: translate(0,0);
+	}
+	50% {
+		transform: translate(0, 100px);
+	}
+	100% {
+		transform: translate(0,0);
+	}
+}
+

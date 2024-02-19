@@ -142,6 +142,7 @@ function designtooltheme_scripts() {
 	wp_style_add_data( 'designtooltheme-style', 'rtl', 'replace' );
 
 	wp_enqueue_script( 'designtooltheme-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'designtool-script', get_template_directory_uri() . '/js/script.js', array( 'jquery' ), _S_VERSION );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
@@ -225,6 +226,7 @@ function designtool_taxonomy() {
   ));
 }	
 
+
 function cc_mime_types($mimes) {
 	$mimes['svg'] = 'image/svg+xml'; 
 	return $mimes;
@@ -280,6 +282,30 @@ function list_parent_categories_shortcode() {
 }
 add_shortcode( 'list_parent_categories_function', 'list_parent_categories_shortcode' );
 
+add_filter('wp_nav_menu_objects', 'my_wp_nav_menu_objects', 10, 2);
+
+function my_wp_nav_menu_objects( $items, $args ) {
+    
+    foreach( $items as &$item ) {
+        
+        $menu_image = get_field('menu_icon', $item);
+		$url = $menu_image['url'];
+		$alt = $menu_image['alt'];
+        
+        // append icon
+        if( $menu_image ) {
+
+            $image_html = '<img src="' . esc_url($url) . '" alt="' . esc_attr($alt) . '" />';
+
+            $item->title = $image_html . $item->title;
+            
+        }
+        
+    }
+    
+    return $items;
+    
+}
 
 ?>
 
