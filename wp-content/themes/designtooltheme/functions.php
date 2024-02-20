@@ -322,6 +322,7 @@ function list_parent_categories_shortcode_list() {
 				$post_output .= '<ul class="child-posts-list">';
 				foreach ($child_posts as $post) {
 					$third_party_url = get_field('third_party_url', $post->ID); // Third-party URL custom field
+					$category_post_icon = get_field('category_post_icon', $post->ID); // ACF image field
 					$post_output .= '<li class="single-post-item"><a href="' . esc_url($third_party_url) . '" target="_blank">';
 					
 					$post_output .= '<div class="post-img"><img src="' . esc_url(get_the_post_thumbnail_url($post, 'full')) . '" alt="' . esc_attr($post->post_title) . '"></div>'; // Featured image
@@ -330,8 +331,12 @@ function list_parent_categories_shortcode_list() {
 					$post_output .= '<p>' . esc_html(get_the_excerpt($post)) . '</p>'; // Post excerpt
 					$plan_values = get_field('design_tool_category_plan', $post->ID); // ACF field value
 					
-					if ($plan_values) {
+					
+					if ($plan_values || $category_post_icon) {
+						$post_output .= '<div class="d-flex">';
 						$post_output .= '<span class="term-plan">' . implode(', ', $plan_values) . '</span>';
+						$post_output .= '<img src="' . esc_url($category_post_icon['url']) . '" alt="' . esc_attr($category_post_icon['alt']) . '" style="margin-right: 8px;">';
+						$post_output .= '</div>';
 					}
 					$post_output .= '</div>';
 					
@@ -347,8 +352,8 @@ function list_parent_categories_shortcode_list() {
 
     } else {
         $category_list .= '<div class="parent-category">';
-        $category_list .= '<a href="' . esc_url( get_term_link( $parent_category ) ) . '">' . esc_html( $parent_category->name ) . '</a>';
-        $category_list .= '<p>No children categories found.</p>';
+        $category_list .= '<h1 class="parent-category-title"> ' . esc_html($parent_category->name) . ' Websites</h1>';
+        $category_list .= '<p class="not-found">Not found any categories!</p>';
         $category_list .= '</div>';
     }
 
