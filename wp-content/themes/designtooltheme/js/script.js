@@ -1,5 +1,16 @@
 jQuery(function(){
 
+    jQuery('ul.parent-category-list li a').click(function(e){
+        e.preventDefault();
+        jQuery('ul.parent-category-list li a').removeClass('active');
+        jQuery(this).toggleClass('active');
+        var anchorval = jQuery(this).attr('data-slug');
+        
+        jQuery('html, body').animate({
+            scrollTop: jQuery( '#' + anchorval).offset().top - 40
+        }, 1000);
+    });
+
     jQuery(window).scroll(function(){
         var scroll = jQuery(window).scrollTop();   
         if (scroll >= 200) {
