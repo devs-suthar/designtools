@@ -240,6 +240,8 @@ function list_parent_categories_shortcode() {
     $parent_categories = get_terms( array(
         'taxonomy' => 'designtools_category', 
         'parent' => 0, // Retrieve only parent categories
+		'orderby' => 'term_id', // Order by term ID
+    	'order' => 'DESC',
     ) );
 
     // Initialize output variable
@@ -291,6 +293,7 @@ function list_parent_categories_shortcode_list() {
     $children_categories = get_terms( array(
         'taxonomy' => 'designtools_category', 
         'parent' => $parent_category-> term_id, 
+		
     ) );
 
     
@@ -299,6 +302,7 @@ function list_parent_categories_shortcode_list() {
 		$category_list .= '<div class="category-list-wrapper">';
 		$post_output .= '<div class="child-posts-container">';
 		$category_list .= '<h1 class="parent-category-title"> ' . esc_html($parent_category->name) . ' Websites</h1>';
+		$category_list .= '<div class="categorylist-wrap">';
 		$category_list .= '<ul class="parent-category-list">';
         foreach ($children_categories as $child_category) {
 			$category_list .= '<li><a data-slug="'.esc_attr($child_category->slug).'" href="#' .esc_attr($child_category->slug) .'">' . esc_html($child_category->name) . '</a></li>';	
@@ -320,6 +324,7 @@ function list_parent_categories_shortcode_list() {
 				$post_output .= '<div class="child-posts-wrapper" data-slug="'.esc_attr($child_category->slug).'">';
 				$post_output .= '<h2 id="' .esc_attr($child_category->slug) .'">' . esc_html($child_category->name) . '</h2>'; // child category name 
 				$post_output .= '<ul class="child-posts-list">';
+				
 				foreach ($child_posts as $post) {
 					$third_party_url = get_field('third_party_url', $post->ID); // Third-party URL custom field
 					$category_post_icon = get_field('category_post_icon', $post->ID); // ACF image field
@@ -329,13 +334,15 @@ function list_parent_categories_shortcode_list() {
 					$post_output .= '<div class="content">';
 					$post_output .= '<h3>' . esc_html($post->post_title) . '</h3>';
 					$post_output .= '<p>' . esc_html(get_the_excerpt($post)) . '</p>'; // Post excerpt
-					$plan_values = get_field('design_tool_category_plan', $post->ID); // ACF field value
+					$plan_values = get_field('designtool_categoryplan', $post->ID); // ACF field value
 					
 					
 					if ($plan_values || $category_post_icon) {
 						$post_output .= '<div class="d-flex">';
-						$post_output .= '<span class="term-plan">' . implode(', ', $plan_values) . '</span>';
 						$post_output .= '<img src="' . esc_url($category_post_icon['url']) . '" alt="' . esc_attr($category_post_icon['alt']) . '" style="margin-right: 8px;">';
+						if (!empty($plan_values)) {
+							$post_output .= '<span class="category-plan">' . esc_html($plan_values) . '</span>';
+						}
 						$post_output .= '</div>';
 					}
 					$post_output .= '</div>';
@@ -344,12 +351,13 @@ function list_parent_categories_shortcode_list() {
 				}
 				$post_output .= '</ul>';
 				$post_output .= '</div>';
+				$post_output .= '</div>';
 			}
 		}	
 		$category_list .= '</ul>';	// category-title
 		$post_output .= '</div>'; // child-posts-container
 		$category_list .= '</div>';	 // category-list-wrapper
-
+		
     } else {
         $category_list .= '<div class="parent-category">';
         $category_list .= '<h1 class="parent-category-title"> ' . esc_html($parent_category->name) . ' Websites</h1>';
@@ -390,6 +398,115 @@ function my_wp_nav_menu_objects( $items, $args ) {
     
     return $items;
     
+}
+
+
+function filter_categories_shortcode() { 
+	
+    // Retrieve parent categories
+
+}
+add_shortcode( 'filter_categories_list', 'filter_categories_shortcode' );
+
+
+function enqueue_custom_scripts() {
+
+    // Localize the script with the AJAX URL and nonce
+    wp_localize_script('designtool-script', 'ajax_object', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('filter_posts_nonce')
+    ));
+}
+add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
+
+
+add_action('wp_ajax_filter_posts_by_category', 'filter_posts_by_category');
+add_action('wp_ajax_nopriv_filter_posts_by_category', 'filter_posts_by_category');
+
+function filter_posts_by_category() {
+    // Verify the nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'filter_posts_nonce')) {
+        die('Permission denied');
+    }
+
+    // Get the category IDs from the AJAX request
+    $category_ids = isset($_POST['category_id']) ? $_POST['category_id'] : array();
+	$offset = isset($_POST['offset']) ? intval($_POST['offset']) : 0; // Get the offset value from the POST data
+
+    // Query posts based on the provided category IDs or retrieve default posts
+    if (!empty($category_ids)) {
+        $category_posts = new WP_Query(array(
+            'post_type' => 'designtool', // Adjust post type if needed
+            'posts_per_page' => -1,
+			'offset' => $offset,
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'designtools_category',
+                    'field' => 'term_id',
+                    'terms' => $category_ids,
+                    'operator' => 'IN' // Retrieve posts that belong to any of the provided categories
+                )
+            )
+        ));
+    } else {
+        // No category selected, retrieve default posts of the parent category
+        $category_posts = new WP_Query(array(
+            'post_type' => 'designtool', // Adjust post type if needed
+            'posts_per_page' => 12, // Default number of posts to retrieve,
+			'offset' => $offset
+        ));
+    }
+
+    // Output the posts
+    $output = ''; // Initialize the output variable
+    if ($category_posts->have_posts()) {
+        while ($category_posts->have_posts()) {
+            $category_posts->the_post();
+			$plan_values = get_field('designtool_categoryplan', $category_posts->ID); // ACF field value
+			$slug = preg_replace('/[^A-Za-z0-9\s]/', '', $plan_values);
+			$title =  $slug;
+			$attr_plan = strtolower(str_replace(' ', '', $title));
+
+            // Concatenate the HTML structure for each post to the $output variable
+            $output .= '<li class="single-post-item">';
+            $output .= '<a href="' . esc_url(get_permalink()) . '" target="_blank">';
+            $output .= '<div class="post-img">';
+
+			
+            
+            // Check if the post has a featured image
+            if (has_post_thumbnail()) {
+                $output .= get_the_post_thumbnail(null, 'full');
+				$category_post_icon = get_field('category_post_icon', $category_posts->ID); // ACF image field
+				
+            } else {
+                // Output a placeholder image if no featured image is found
+                $output .= '<img src="' . esc_url(get_template_directory_uri() . '/images/placeholder.jpg') . '" alt="Placeholder Image">';
+            }
+
+            $output .= '</div>';
+            $output .= '<div class="content">';
+            $output .= '<h3>' . esc_html(get_the_title()) . '</h3>';
+            $output .= '<p>' . esc_html(get_the_excerpt()) . '</p>';
+            $output .= '<div class="d-flex">';
+            $output .= '<img src="' . esc_url($category_post_icon['url']) . '" alt="' . esc_attr($category_post_icon['alt']) . '" style="margin-right: 8px;">';
+            $output .= '<span class="category-plan ' . esc_attr($attr_plan) . '">' . esc_html($plan_values) . '</span>';
+            $output .= '</div>';
+            $output .= '</div>';
+            $output .= '</a>';
+            $output .= '</li>';
+        }
+        wp_reset_postdata(); // Reset posdatat 
+    } else {
+        // No posts found
+        $output = '<li>No posts found</li>';
+    }
+
+    // Output the concatenated HTML
+    echo $output;
+
+    // Always die after echoing JSON data
+    wp_die();
 }
 
 ?>
